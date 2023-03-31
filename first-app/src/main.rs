@@ -11,17 +11,19 @@ enum Message {
     Message(Box<str>) // send a message to the user
 }
 
-fn MessageHandler(message : Message) { //will handle the messages
+fn message_handler(message : Message) { //will handle the messages
     match message {
         Message::Sucess => println!("Sucess"),
-        Message::Error(errCode) => println!("Error Code : {} refer to the documentation for more information", errCode),
-        Message::Warning(str) => println!("{}", str),
-        Message::Message(str) => println!("{}", str)
+        Message::Error(error_code) => println!("Error Code : {} refer to the documentation for more information", error_code),
+        Message::Warning(str) => println!("Warning : {}", str),
+        Message::Message(str) => println!("System Message : {}", str)
     }
 }
 
-fn simulateLaoding() {
+fn simulate_loading() {
     let mut charge_bar : [char; 12] = ['[', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', ']'];
+    message_handler(Message::Message("loading the data ...".into()));
+    message_handler(Message::Warning("watch out the current version is unstable".into()));
     'outer : for percent in 1..11 {
         if !load(percent) {
             println!("the program ran into an error while loading component {} please restart the program", percent);
@@ -33,21 +35,21 @@ fn simulateLaoding() {
     } 
 }
 
-fn load(featureID : u32) -> bool  {
-    println!("geting the data of object {} :", featureID);
-    let mut child = Command::new("sleep").arg("5").spawn().unwrap();
+fn load(feature_id : u32) -> bool  {
+    println!("geting the data of object {} :", feature_id);
+    let mut child = Command::new("sleep").arg("0.5").spawn().unwrap();
     let _result = child.wait().unwrap();
     let random : f32 = rand::thread_rng().gen();
         if random > 0.9 {
-        MessageHandler(Message::Error(1));
+        message_handler(Message::Error(1));
         return false
     } else {
-        MessageHandler(Message::Sucess);
+        message_handler(Message::Sucess);
         return true
     }
 }
 
 fn main() {
     // first we will simulate a laoding
-    simulateLaoding();
+    simulate_loading();
 }
