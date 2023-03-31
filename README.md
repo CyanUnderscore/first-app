@@ -1,3 +1,3 @@
 # first-app
-lets try
+lets try \n
 (spoiler : it will be bad)
