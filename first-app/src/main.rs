@@ -2,6 +2,7 @@
 // #[derive(Debug)]
 
 use rand::{self, Rng};
+use std::process::Command;
 
 enum Message {
     Sucess,
@@ -21,20 +22,23 @@ fn MessageHandler(message : Message) { //will handle the messages
 
 fn simulateLaoding() {
     let mut charge_bar : [char; 12] = ['[', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', ']'];
-    for percent in 1..11 {
+    'outer : for percent in 1..11 {
         if !load(percent) {
-            continue;
+            println!("the program ran into an error while loading component {} please restart the program", percent);
+            break 'outer;
         }else {
             charge_bar[usize::try_from(percent).unwrap()] = '#';
-            println!("{}", String::from_iter(&charge_bar));  
+            println!("{} {}%", String::from_iter(&charge_bar), percent * 10 );  
         }    
     } 
 }
 
 fn load(featureID : u32) -> bool  {
-    let random : f32 = rand::thread_rng().gen();
     println!("geting the data of object {} :", featureID);
-    if random > 0.9 {
+    let mut child = Command::new("sleep").arg("5").spawn().unwrap();
+    let _result = child.wait().unwrap();
+    let random : f32 = rand::thread_rng().gen();
+        if random > 0.9 {
         MessageHandler(Message::Error(1));
         return false
     } else {
