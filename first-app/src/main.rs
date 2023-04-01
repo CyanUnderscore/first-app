@@ -2,17 +2,11 @@
 // second : manage user input (arrows)
 
 
-#[macro_use]
-extern crate crossterm;
 
-use crossterm::cursor;
-use crossterm::event::{read, Event, KeyCode, KeyEvent, KeyModifiers};
-use crossterm::style::Print;
-use crossterm::terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType};
-
-use std::io::{stdout, Write};
 use rand::{self, Rng};
 use std::process::Command;
+use std::process::exit;
+use console::Term;
 
 enum Input {
     Up,
@@ -93,7 +87,9 @@ fn init_game() -> ([[char; 10]; 10] , Player) {
     Message::Message("initialisation of the game ...".into()).message_handler();
     
     print!("loading screen ... : ");
-    let screen = [['_';10]; 10];
+    const rows: usize = 10;
+    const lines: usize = 10;
+    let screen = [['_';rows];lines];
     Message::Sucess.message_handler();
     println!("{:?}", screen);
     
@@ -108,47 +104,30 @@ fn init_game() -> ([[char; 10]; 10] , Player) {
     return (screen, player);
 }
 
-fn input_manager() {
-    let mut stdout = stdout();
-    //going into raw mode
-    enable_raw_mode().unwrap();
-
-    //clearing the screen, going to top left corner and printing welcoming message
-    execute!(stdout, Clear(ClearType::All), cursor::MoveTo(0, 0), Print(r#"ctrl + q to exit, ctrl + h to print "Hello world", alt + t to print "crossterm is cool""#))
-            .unwrap();
-
-    //key detection
-    loop {
-        //going to top left corner
-        execute!(stdout, cursor::MoveTo(0, 0)).unwrap();
-
-        //matching the key
-        match read().unwrap() {
-            //i think this speaks for itself
-            Event::Key(KeyEvent {
-                code: KeyCode::Char('h'),
-                modifiers: KeyModifiers::CONTROL,
-                //clearing the screen and printing our message
-            }) => execute!(stdout, Clear(ClearType::All), Print("Hello world!")).unwrap(),
-            Event::Key(KeyEvent {
-                code: KeyCode::Char('t'),
-                modifiers: KeyModifiers::ALT,
-            }) => execute!(stdout, Clear(ClearType::All), Print("crossterm is cool")).unwrap(),
-            Event::Key(KeyEvent {
-                code: KeyCode::Char('q'),
-                modifiers: KeyModifiers::CONTROL,
-            }) => break,
-            _ => (),
-        }
-    }
-
-    //disabling raw mode
-    disable_raw_mode().unwrap();
+fn restart() {
+    println!("restarting ... : ");
+    Message::Sucess.message_handler();
+    main();
 }
 
 fn main() {
     // first we will simulate a laoding
     simulate_loading();
     let (window, player) = init_game(); 
+    let stdout = Term::buffered_stdout();
 
+    'game_loop: loop {
+        println!("{:?}", window);
+        if let Ok(character) = stdout.read_char() {
+            match character {
+                'z' => println!("Up"),
+                'q' => println!("Left"),
+                's' => println!("Down"),
+                'd' => println!("Right"),
+                'r' => main(),
+                _ => ()
+            }
+        }
+    }
 }
+
