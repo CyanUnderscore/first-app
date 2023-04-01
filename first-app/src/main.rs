@@ -64,13 +64,13 @@ fn load(feature_id : u32) -> bool  {
     }
 }
 
-fn init_game() -> ([[char; 10]; 10] , Player) {
+fn init_game() -> ([[char; 40]; 20] , Player) {
     
     Message::Message("initialisation of the game ...".into()).message_handler();
     
     print!("loading screen ... : ");
-    const rows: usize = 10;
-    const lines: usize = 10;
+    const rows: usize = 40;
+    const lines: usize = 20;
     let screen = [[' ';rows];lines];
     Message::Sucess.message_handler();
     println!("{:?}", screen);
@@ -92,7 +92,7 @@ fn restart() {
     main();
 }
 
-fn load_coins(mut num : u32, mut window : [[char ; 10]; 10]) -> [[char ; 10]; 10] {
+fn load_coins(mut num : u32, mut window : [[char ; 40]; 20]) -> [[char ; 40]; 20] {
     for i in 0..num {
         let x = rand::thread_rng().gen_range(0..10);
         let y = rand::thread_rng().gen_range(0..10);
@@ -130,13 +130,19 @@ fn main() {
             }
         }
         match window[player.location.1][player.location.0] {
-            'C' => {window[player.location.1][player.location.0] = ' '; score += 1;},
-            
+            'C' => {blanck_window[player.location.1][player.location.0] = ' '; score += 1; println!("got one");},      
             _ => () 
         }
         window[player.location.1][player.location.0] = '#';
         print!("{}[2J", 27 as char);
-        println!("{:?}", window);
+        println!("____________________________________________");
+        for line in window {
+            print!("|");
+            for case in line {
+                print!("{}", case);
+            }
+            println!("|");
+        }
         println!("score : {}", score);
     }
 }
