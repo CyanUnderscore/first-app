@@ -1,5 +1,5 @@
 // first : creating a message handler and an enum for the different tupes of messages
-// second : manage user input (arrows)
+// second : manage user input (zqsd)
 
 
 
@@ -7,24 +7,6 @@ use rand::{self, Rng};
 use std::process::Command;
 use std::process::exit;
 use console::Term;
-
-enum Input {
-    Up,
-    Down,
-    Right,
-    Left
-} impl Input {
-    fn input_handler(&self){
-        match self {
-            Input::Up => println!("Up"), 
-            Input::Down => println!("Down"),
-            Input::Right => println!("Right"),
-            Input::Left => println!("Left")
-
-        }
-    }
-}
-
 
 enum Message {
     Sucess,
@@ -46,7 +28,7 @@ struct Player {
     life : u32,
     lenght : u32,
     color : (u32, u32, u32),
-    location : (u32 , u32)
+    location : (usize , usize)
 }
 
 struct Coin {
@@ -113,17 +95,21 @@ fn restart() {
 fn main() {
     // first we will simulate a laoding
     simulate_loading();
-    let (window, player) = init_game(); 
+    let (mut window, mut player) = init_game(); 
     let stdout = Term::buffered_stdout();
 
     'game_loop: loop {
+        let mut child = Command::new("sleep").arg("0.1").spawn().unwrap();
+        let _result = child.wait().unwrap();
+        window[player.location.1][player.location.0] = '#';
         println!("{:?}", window);
+        window[player.location.1][player.location.0] = '_';
         if let Ok(character) = stdout.read_char() {
             match character {
-                'z' => println!("Up"),
-                'q' => println!("Left"),
-                's' => println!("Down"),
-                'd' => println!("Right"),
+                'z' => player.location.1 -= 1,
+                's' => player.location.1 += 1,
+                'q' => player.location.0 -= 1,
+                'd' => player.location.0 += 1,
                 'r' => main(),
                 _ => ()
             }
