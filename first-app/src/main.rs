@@ -71,7 +71,7 @@ fn init_game() -> ([[char; 10]; 10] , Player) {
     print!("loading screen ... : ");
     const rows: usize = 10;
     const lines: usize = 10;
-    let screen = [['_';rows];lines];
+    let screen = [[' ';rows];lines];
     Message::Sucess.message_handler();
     println!("{:?}", screen);
     
@@ -92,28 +92,52 @@ fn restart() {
     main();
 }
 
+fn load_coins(mut num : u32, mut window : [[char ; 10]; 10]) -> [[char ; 10]; 10] {
+    for i in 0..num {
+        let x = rand::thread_rng().gen_range(0..10);
+        let y = rand::thread_rng().gen_range(0..10);
+        if window[y][x] == ' ' {
+            window[y][x] = 'C';
+        } else {
+            num += 1;
+        }
+    }
+    return window;
+}
+
+
 fn main() {
     // first we will simulate a laoding
     simulate_loading();
+    let coin_num :u32 = 10; 
+    let mut score :u32  = 0;
     let (mut window, mut player) = init_game(); 
-    let stdout = Term::buffered_stdout();
+    let mut blanck_window = load_coins(coin_num, window);
+    let stdout = Term::buffered_stdout(); 
 
     'game_loop: loop {
         let mut child = Command::new("sleep").arg("0.1").spawn().unwrap();
         let _result = child.wait().unwrap();
-        window[player.location.1][player.location.0] = '#';
-        println!("{:?}", window);
-        window[player.location.1][player.location.0] = '_';
+        window = blanck_window;
         if let Ok(character) = stdout.read_char() {
             match character {
                 'z' => player.location.1 -= 1,
                 's' => player.location.1 += 1,
                 'q' => player.location.0 -= 1,
                 'd' => player.location.0 += 1,
-                'r' => main(),
+                'r' => restart(),
                 _ => ()
             }
         }
+        match window[player.location.1][player.location.0] {
+            'C' => {window[player.location.1][player.location.0] = ' '; score += 1;},
+            
+            _ => () 
+        }
+        window[player.location.1][player.location.0] = '#';
+        print!("{}[2J", 27 as char);
+        println!("{:?}", window);
+        println!("score : {}", score);
     }
 }
 
